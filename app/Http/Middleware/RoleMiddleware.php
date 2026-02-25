@@ -21,9 +21,11 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+        if (!in_array(Auth::user()->role, ['admin', 'staff', 'user'])) {
             abort(403, 'Unauthorized');
         }
         return $next($request);
     }
+
+    
 }

@@ -65,7 +65,7 @@ class AuthController extends Controller
         return match ($user->role) {
             'admin' => redirect()->route('admin.dashboard'),
             'staff' => redirect()->route('staff.dashboard'),
-            default => redirect()->route('user.dashboard'),
+            default => redirect()->route('public.index'),
         };
     }
 
@@ -76,6 +76,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home.index');
+        return redirect()->route('public.index');
     }
 }

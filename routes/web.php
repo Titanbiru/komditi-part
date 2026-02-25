@@ -53,9 +53,7 @@ Route::get('/contact', [ContactController::class, 'index'])->name('contact.index
 // CUSTOMER ROUTES (Login Required)
 Route::middleware(['auth', 'role:user'])->group(function () {
 
-    Route::get('/public', function () {
-        return view('user.dashboard');
-    })->name('user.dashboard');
+    Route::get('/public', function () {return view('user.index');})->name('public.index');
 
     Route::get('/favorite', [FavoriteController::class, 'favorites'])->name('favorites.index');
     Route::post('/favorite/add/{product}', [FavoriteController::class, 'add'])->name('favorites.add');

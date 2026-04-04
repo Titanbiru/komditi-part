@@ -16,9 +16,16 @@ class StockController extends Controller
         $products = Product::latest()->paginate(10);
 
         $totalProducts = Product::count();
+        
+        // 1. Stok yang benar-benar 0
         $emptyStock = Product::where('stock', 0)->count();
-        $runningLow = Product::whereColumn('stock', '<', 'minimum_stock')->where('stock', '<', 0)->count();
-        $safeStock = $totalProducts - $emptyStock - $runningLow;
+        
+        // 2. Stok yang menipis (antara 1 sampai 5)
+        // Pakai where, bukan whereColumn!
+        $runningLow = Product::where('stock', '>', 0)->where('stock', '<', 5)->count();
+        
+        // 3. Stok aman (diatas atau sama dengan 5)
+        $safeStock = Product::where('stock', '>=', 5)->count();
 
         return view('staff.stock.index', compact('products', 'totalProducts', 'emptyStock', 'runningLow', 'safeStock'));
     }
@@ -31,29 +38,46 @@ class StockController extends Controller
     public function update(Request $request, $productId)
     {
         $request->validate([
-            'quantity' => 'required|integer'
+            'amount' => 'required|integer|min:1',
+            'type' => 'required|in:in,out',
+            'note' => 'nullable|string',
         ]);
 
         $product = Product::findOrFail($productId);
 
         DB::transaction(function () use ($product, $request) {
 
-            $oldStock = $product->stock;
-            $newStock = $oldStock + $request->quantity;
+            $change = ($request->type == 'in') ? $request->amount : -$request->amount;
 
+            $oldStock = $product->stock;
+            $newStock = $oldStock + $change;
+
+            if ($newStock < 0) {
+                throw new \Exception('Stok tidak mencukupi untuk dikurangi.');
+            }
             $product->update([
                 'stock' => $newStock
             ]);
 
             StockHistory::create([
                 'product_id' => $product->id,
-                'user_id' => Auth::id(),
-                'old_stock' => $oldStock,
-                'new_stock' => $newStock,
-                'change' => $request->quantity,
+                'users_id' => Auth::id(),
+                'amount' => $request->amount,
+                'type' => $request->type,
+                'note' => $request->note,
+                'stock_before' => $oldStock,
+                'stock_after' => $newStock,
             ]);
         });
 
         return back()->with('success', 'Stock updated successfully.');
+    }
+
+    public function history(Product $product)
+    {
+        // Ambil history khusus untuk produk ini
+        $histories = $product->stockHistories()->with('user')->paginate(15);
+        
+        return view('staff.stock.history', compact('product', 'histories'));
     }
 }

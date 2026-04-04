@@ -5,19 +5,18 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalTransactions = Transaction::whereMonth('created_at', now()->month)->count();
+        $totalTransactions = Order::whereMonth('created_at', now()->month)->count();
 
-        $totalSales = Transaction::whereMonth('created_at', now()->month)
-                        ->sum('total_amount');
+        $totalSales = Order::whereMonth('created_at', now()->month)
+                        ->sum('grand_total');
 
-        $activeOrders = Order::whereIn('status', ['pending', 'process', 'shipped'])->count();
+        $activeOrders = Order::whereIn('shipment_status', ['pending','processing','shipped','delivered','cancelled'])->count();
 
         $lowStock = Product::where('stock', '<', 5)->count();
 

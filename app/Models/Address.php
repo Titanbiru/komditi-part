@@ -9,6 +9,7 @@ class Address extends Model
 {
     protected $fillable = [
         'user_id',
+        'type',
         'recipient_name',
         'phone',
         'address',
@@ -21,6 +22,8 @@ class Address extends Model
     protected $casts = [
         'is_default' => 'boolean',
     ];
+
+    
 
     public function user()
     {

@@ -23,7 +23,7 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ## User w/ Password
 ```bash
-admin test@example.com
+admin admin@gmail.com
 password admin12345
 ```
 

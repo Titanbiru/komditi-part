@@ -52,15 +52,30 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        // 1. Coba login dulu
         if (!Auth::attempt($credentials)) {
             return back()->withErrors([
                 'email' => 'Invalid credentials.',
             ]);
         }
 
-        $request->session()->regenerate();
-
+        // 2. Ambil data user yang berhasil login
         $user = Auth::user();
+
+        // 3. CEK APAKAH USER AKTIF?
+        if (!$user->is_active) {
+            Auth::logout(); // Paksa keluar lagi kalau statusnya non-aktif
+            
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Akun Anda telah dinonaktifkan oleh Admin. Silakan hubungi dukungan.',
+            ]);
+        }
+
+        // 4. Jika aktif, baru buat session
+        $request->session()->regenerate();
 
         return match ($user->role) {
             'admin' => redirect()->route('admin.dashboard'),

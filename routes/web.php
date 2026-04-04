@@ -12,27 +12,33 @@ use App\Http\Controllers\Public\ContactController;
 //admin Controllers 
 use App\Http\Controllers\AdminController; 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController; 
-use App\Http\Controllers\Admin\ProductController as adminProductController; 
-use App\Http\Controllers\Admin\UserController; 
-use App\Http\Controllers\Admin\TransactionController as AdminTransactionController; 
+use App\Http\Controllers\Admin\UserController as AdminUserController; 
+use App\Http\Controllers\Admin\ProductController as AdminProductController; 
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController; 
+use App\Http\Controllers\Admin\OrderController as AdminOrderController; 
 use App\Http\Controllers\Admin\ReportController as AdminReportController; 
 use App\Http\Controllers\Admin\BackupController; 
 // staff controllers 
 use App\Http\Controllers\StaffController; 
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController; 
 use App\Http\Controllers\Staff\ProductController as StaffProductController; 
-use App\Http\Controllers\Staff\TransactionController as StaffTransactionController; 
+use App\Http\Controllers\Staff\OrderController as StaffOrderController; 
 use App\Http\Controllers\Staff\StockController as StaffStockController; 
 use App\Http\Controllers\Staff\ReportController as StaffReportController; 
 // user controllers 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\User\CartController; 
 use App\Http\Controllers\User\CheckoutController; 
 use App\Http\Controllers\User\OrderController; 
-use App\Http\Controllers\User\TransactionController; 
+use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\FavoriteController;
+use App\Http\Controllers\User\SettingsController;
+use App\Http\Controllers\User\AddressController;
+use App\Http\Controllers\User\PaymentController;
+
 
 // Landing Page
-Route::get('/', [HomeController::class, 'index'])->name('landing');
+Route::get('/', [HomeController::class, 'index'])->name('public.index');
 
 // Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -45,33 +51,50 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.pr
 
 // Public product view (guest boleh lihat)
 Route::get('/search', [ProductController::class, 'search'])->name('search');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/show', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products', [HomeController::class, 'allProducts'])->name('public.products');
+Route::get('/products', [ProductController::class, 'index'])->name('public.products');
+
+// Halaman produk berdasarkan kategori (untuk fix error kamu)
+Route::get('/category/{slug}', [ProductController::class, 'category'])->name('public.category');
+Route::get('/product/{slug}', [ProductController::class, 'show'])->name('public.products.show');
 Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 
 // CUSTOMER ROUTES (Login Required)
 Route::middleware(['auth', 'role:user'])->group(function () {
 
-    Route::get('/public', function () {return view('user.index');})->name('public.index');
+    Route::get('/user', function () {return view('user.index');})->name('index');
 
-    Route::get('/favorite', [FavoriteController::class, 'favorites'])->name('favorites.index');
-    Route::post('/favorite/add/{product}', [FavoriteController::class, 'add'])->name('favorites.add');
-    Route::delete('/favorite/remove/{product}', [FavoriteController::class, 'remove'])->name('favorites.remove');
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('user.account.favorites');
+    Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->name('user.account.favorites.store');
+    Route::delete('/favorites/{product}', [FavoriteController::class, 'destroy'])->name('user.account.favorites.destroy');
+    Route::post('/favorites/toggle/{productId}', [FavoriteController::class, 'toggle'])->name('user.account.favorites.toggle');
 
-    Route::get('/profile', [TransactionController::class, 'index'])->name('profile.index');
-
+    Route::get('/profile', [ProfileController::class, 'index'])->name('user.account.profile');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('user.account.profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('user.account.profile.update.password');
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/add/{product}', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::patch('/cart/update/{itemId}', [CartController::class, 'updateQuantity'])->name('cart.update');
+    Route::delete('/cart/item/{itemId}', [CartController::class, 'removeFromCart'])->name('cart.remove');
 
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders', [OrderController::class, 'index'])->name('user.account.orders');
+    Route::get('/orders/history', [OrderController::class, 'history'])->name('user.account.orders.history');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('user.account.orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('user.account.orders.cancel');
+    Route::put('/orders/{id}/delivered', [OrderController::class, 'markAsDelivered'])->name('user.account.orders.delivered');
+
+    Route::get('/addresses', [AddressController::class, 'index'])->name('user.account.addresses');
+    Route::get('/addresses/create', [AddressController::class, 'create'])->name('user.account.addresses.create');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('user.account.addresses.store');
+    Route::get('/addresses/{id}/edit', [AddressController::class, 'edit'])->name('user.account.addresses.edit');
+    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('user.account.addresses.update');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('user.account.addresses.destroy');
+
 });
 
 
@@ -85,27 +108,44 @@ Route::prefix('admin')
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::resource('users', UserController::class);
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
         
-        Route::resource('products', AdminProductController::class)
-            ->only(['index','show', 'edit', 'update']);
+        Route::resource('categories', AdminCategoryController::class);
+        Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+        
+        Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+        Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}', [AdminProductController::class, 'show'])->name('products.show');
+        Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{product}', [AdminProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/image/{id}', [AdminProductController::class, 'deleteImage'])->name('products.delete_image');
+        Route::delete('/products/{products}', [AdminProductController::class, 'destroy'])->name('products.destroy');
 
-        Route::get('/transactions/{order}', [AdminTransactionController::class, 'show'])
-            ->name('transactions.show');
 
-        Route::prefix('reports')->name('reports.')->group(function () {
-            Route::get('/', [AdminReportController::class, 'index'])->name('index');
-            Route::get('/sales', [AdminReportController::class, 'sales'])->name('sales');
-            Route::get('/stocks', [AdminReportController::class, 'products'])->name('stocks');
-            Route::get('/transactions', [AdminReportController::class, 'transactions'])->name('transactions');
-            Route::get('/export', [AdminReportController::class, 'exportPdf'])->name('export');
-        });
+        // Route::get('/transactions/{order}', [AdminOrderController::class, 'show'])->name('transactions.show');
 
-        Route::prefix('backup')->name('backup.')->group(function () {
-            Route::get('/', [BackupController::class, 'index'])->name('index');
-            Route::post('/create', [BackupController::class, 'create'])->name('create');
-            Route::post('/restore', [BackupController::class, 'restore'])->name('restore');
-        });
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
+        Route::get('/reports/stocks', [AdminReportController::class, 'stock'])->name('reports.stocks');
+        Route::get('/reports/transactions', [AdminReportController::class, 'transactions'])->name('reports.transactions');
+        Route::get('/reports/transactions/{order}', [AdminReportController::class, 'transactionShow'])->name('reports.transaction_detail');
+        Route::get('/sales/pdf', [AdminReportController::class, 'exportSalesPdf'])->name('reports.sales.pdf');
+        Route::get('/stocks/pdf', [AdminReportController::class, 'exportStocksPdf'])->name('reports.stocks.pdf');
+        Route::get('/transactions/pdf', [AdminReportController::class, 'exportTransactionsPdf'])->name('reports.transactions.pdf');
+
+        Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('/generate', [BackupController::class, 'backup'])->name('backup.generate');
+        Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
+        Route::delete('/delete/{filename}', [BackupController::class, 'delete'])->name('backup.delete');
+        Route::post('/restore', [BackupController::class, 'restore'])->name('backup.restore');
+
 });
 
 
@@ -119,14 +159,21 @@ Route::prefix('staff')
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])
             ->name('dashboard');
 
-        Route::resource('products', StaffProductController::class)
-            ->only(['index','show']);
+        Route::get('/products', [StaffProductController::class, 'index'])->name('products.index');
+        Route::get('/products/{product}', [StaffProductController::class, 'show'])->name('products.show');
 
         Route::get('/stock', [StaffStockController::class, 'index'])->name('stock.index');
+        Route::get('/stock/{product}/edit', [StaffStockController::class, 'edit'])->name('stock.edit');
         Route::put('/stock/{product}', [StaffStockController::class, 'update'])->name('stock.update');
+        Route::get('/stock/{product}/history', [StaffStockController::class, 'history'])->name('stock.history');
 
-        Route::get('/transactions', [StaffTransactionController::class, 'index'])->name('transactions.index');
-        Route::get('/transactions/{order}', [StaffTransactionController::class, 'update'])->name('transactions.update');
+        Route::get('/transactions', [StaffOrderController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions/{id}/edit', [OrderController::class, 'edit'])->name('transactions.edit');
+        Route::put('/transactions/{id}', [OrderController::class, 'updateStatus'])->name('transactions.updateStatus');
 
-        Route::get('/report', [StaffReportController::class, 'index'])->name('report.index');
+        Route::get('/reports', [StaffReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/sales', [StaffReportController::class, 'sales'])->name('reports.sales');
+        Route::get('/reports/stocks', [StaffReportController::class, 'stock'])->name('reports.stocks');
+        Route::get('/reports/transactions', [StaffReportController::class, 'transactions'])->name('reports.transactions');
+
 });

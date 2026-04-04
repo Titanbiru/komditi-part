@@ -4,13 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'role',
+        'is_active',
     ];
 
     /**
@@ -33,6 +37,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $attributes = [
+        'role' => 'user',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -43,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
     
@@ -56,13 +65,26 @@ class User extends Authenticatable
         return $this->hasOne(Cart::class);
     }
 
+    public function cartItems()
+    {
+        // User punya banyak CartItems MELALUI tabel Cart
+        return $this->hasManyThrough(
+            CartItem::class, // Model tujuan akhirnya
+            Cart::class,     // Model perantaranya
+            'user_id',       // Foreign key di tabel carts
+            'cart_id',       // Foreign key di tabel cart_items
+            'id',            // Local key di tabel users
+            'id'             // Local key di tabel carts
+        );
+    }
+
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    public function transactions()
+    public function favorites()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsToMany(Product::class, 'favorites', 'user_id', 'product_id');
     }
 }

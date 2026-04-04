@@ -9,14 +9,13 @@ class Product extends Model
 {
     protected $fillable = [
         'name',
-        'category_id',
         'slug',
         'sku',
         'price',
         'description',
+        'discount',
         'stock',
         'weight',
-        'image',
         'status',
     ];
 
@@ -25,11 +24,42 @@ class Product extends Model
         'stock' => 'integer'
     ];
 
-    public function category()
+    public function images()
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(ProductImage::class);
     }
 
+    // app/Models/Product.php
+
+    public function getThumbnailAttribute()
+    {
+        // 1. Ambil data gambar pertama dari relasi product_images
+        $firstImage = $this->images->first();
+
+        if (!$firstImage) {
+            return asset('images/no-image.png'); // Gambar default kalau di DB kosong
+        }
+
+        $path = $firstImage->image_path;
+
+        // 2. Cek apakah file ada di public/storage/products/
+        if (file_exists(public_path('storage/' . $path))) {
+            return asset('storage/' . $path);
+        }
+
+        // 3. Cek apakah file ada di public/uploads/ (atau folder lain sesuai DB)
+        if (file_exists(public_path($path))) {
+            return asset($path);
+        }
+
+        // 4. Kalau semua gagal, return path mentah atau placeholder
+        return asset($path);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_product', 'product_id');
+    }
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
@@ -42,11 +72,17 @@ class Product extends Model
 
     public function stockHistories()
     {
-        return $this->hasMany(StockHistory::class);
+        return $this->hasMany(StockHistory::class)->latest();
     }
 
-    public function transactionItems()
+    public function favoritedBy()
     {
-        return $this->hasMany(TransactionItems::class);
+        
+        return $this->belongsToMany(User::class, 'favorites', 'product_id', 'user_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

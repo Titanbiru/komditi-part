@@ -1,11 +1,25 @@
-@import 'tailwindcss';
+@import "tailwindcss/preflight";
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+:root {
+    --primary: #CD2828;
+    --second-color: #BABABA;
+    --bg-color: #F9F9F9;
+    --text-color: #202020;
+    --second-txt-color: #FEFEFE;
+    --highlight: #1BCFD5;
+    --hover: #832A2A;
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Optional: biar heading lebih bold */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
 }

@@ -8,10 +8,24 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request) // Tambahkan Request $request
     {
-        $products = Product::latest()->paginate(10);
-        return view('staff.products.index', compact('products'));
+        // Gunakan 'status' sesuai database products, bukan 'is_active'
+        $totalProducts = Product::count();
+        $activeProducts = Product::where('status', 'active')->count();
+
+        $query = Product::with('categories')->latest();
+
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('sku', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $products = $query->paginate(10);
+
+        return view('staff.products.index', compact('products', 'totalProducts', 'activeProducts'));
     }
 
     public function show(Product $product)

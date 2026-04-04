@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,30 +11,43 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        // Ambil semua order milik user, filter berdasarkan status jika ada
         $orders = Order::with(['items.product'])
             ->where('user_id', Auth::id())
-            ->when($request->payment_status, function ($query) use ($request) {
-                $query->where('payment_status', $request->payment_status);
-            })
-            ->when($request->status, function ($query) use ($request) {
-                $query->where('status', $request->status);
-            })
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
-        return view('orders.index', compact('orders'));
+        $breadcrumbs = [
+                ['name' => 'Akun Saya', 'url' => route('user.account.profile')],
+                ['name' => 'Riwayat Pesanan', 'url' => null],
+            ];
+        return view('user.account.orders.index', compact('orders', 'breadcrumbs'));
     }
 
     public function show($id)
     {
-        $order = Order::with([
-                'items.product',
-                'user'
-            ])
-            ->where('user_id', Auth::id())
+        $order = Order::with(['items.product'])->where('user_id', Auth::id())->findOrFail($id);
+
+        $breadcrumbs = [
+            ['name' => 'Akun Saya', 'url' => route('user.dashboard')],
+            ['name' => 'Riwayat Pesanan', 'url' => route('user.orders.index')],
+            ['name' => 'Detail #' . $order->invoice_number, 'url' => null],
+        ];
+        return view('user.account.orders.show', compact('order', 'breadcrumbs'));
+    }
+
+    // FUNGSI KONFIRMASI BARANG SAMPAI
+    public function markAsDelivered($id)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('shipment_status', 'shipped') // Hanya yang sudah dikirim yang bisa dikonfirmasi
             ->findOrFail($id);
 
-        return view('orders.show', compact('order'));
+        $order->update([
+            'shipment_status' => 'delivered'
+        ]);
+
+        return back()->with('success', 'Terima kasih! Pesanan telah selesai.');
     }
 
     public function cancel($id)
@@ -51,5 +65,21 @@ class OrderController extends Controller
         ]);
 
         return back()->with('success', 'Order cancelled successfully.');
+    }
+
+    public function history()
+    {
+        $orders = Order::with(['items.product'])
+            ->where('user_id', Auth::id())
+            ->whereIn('payment_status', ['paid', 'cancelled'])
+            ->latest()
+            ->paginate(10);
+
+        $breadcrumbs = [
+            ['name' => 'Akun Saya', 'url' => route('user.account.profile')],
+            ['name' => 'Riwayat Pesanan', 'url' => null],
+        ];
+
+        return view('orders.history', compact('orders', 'breadcrumbs'));
     }
 }

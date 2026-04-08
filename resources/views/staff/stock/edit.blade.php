@@ -1,62 +1,65 @@
 @extends('layouts.staff')
 
 @section('content')
-<div class="max-w-4xl">
-    <h1 class="text-3xl font-bold text-black mb-8">Update Stock</h1>
-
-    <div class="space-y-1 mb-8">
-        <p class="text-xl font-bold"><span class="uppercase">product name:</span> {{ $product->name }}</p>
-        <p class="text-xl font-bold"><span class="uppercase">SKU:</span> {{ $product->sku }}</p>
-        <p class="text-xl font-bold">Current Stocks: {{ $product->stock }}</p>
-        <p class="text-xl font-bold">Minimum Stocks: 10</p>
-        <p class="text-xl font-bold">Status Stocks: 
-            <span class="{{ $product->stock < 10 ? 'text-yellow-500' : 'text-green-500' }}">
-                {{ $product->stock < 10 ? 'running low' : 'safe' }}
-            </span>
-        </p>
+<div class="max-w-3xl">
+    <div class="mb-10 px-2">
+        <h1 class="text-3xl font-black text-[#202020] uppercase tracking-tighter">Adjust Inventory</h1>
+        <p class="text-[10px] font-bold text-[#BABABA] uppercase tracking-widest mt-1">Manual Stock Correction</p>
     </div>
 
-    <form action="{{ route('staff.stock.update', $product->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        
-        <div class="mb-6">
-            <h3 class="font-bold text-xl mb-3">Type of changes</h3>
-            <div class="flex gap-4">
-                <label class="flex items-center gap-2 border-2 border-gray-300 rounded-full px-6 py-2 cursor-pointer has-[:checked]:border-red-500 transition-all bg-white">
-                    <input type="radio" name="type" value="in" checked class="accent-red-600 w-4 h-4">
-                    <span class="text-lg font-medium">Incoming Stocks</span>
-                </label>
-                <label class="flex items-center gap-2 border-2 border-gray-300 rounded-full px-6 py-2 cursor-pointer has-[:checked]:border-red-500 transition-all bg-white">
-                    <input type="radio" name="type" value="out" class="accent-red-600 w-4 h-4">
-                    <span class="text-lg font-medium">Out of Stocks</span>
-                </label>
+    <div class="bg-white border border-[#BABABA]/20 rounded-[2.5rem] p-8 md:p-12 shadow-sm mb-10">
+        <div class="grid grid-cols-2 gap-8 mb-10 pb-8 border-b border-[#F9F9F9]">
+            <div>
+                <p class="text-[8px] font-black text-[#BABABA] uppercase tracking-[0.2em] mb-1">Product Identity</p>
+                <p class="text-sm font-black text-[#202020] uppercase">{{ $product->name }}</p>
+                <p class="text-[10px] font-bold text-[#BABABA] uppercase mt-1">SKU • {{ $product->sku }}</p>
+            </div>
+            <div>
+                <p class="text-[8px] font-black text-[#BABABA] uppercase tracking-[0.2em] mb-1">Current Balance</p>
+                <p class="text-2xl font-black {{ $product->stock < 10 ? 'text-[#CD2828]' : 'text-[#202020]' }}">{{ $product->stock }} <span class="text-[10px] text-[#BABABA]">UNIT</span></p>
             </div>
         </div>
 
-        <div class="mb-6 max-w-xs">
-            <h3 class="font-bold text-xl mb-1">Amount of Changes</h3>
-            <p class="text-[10px] text-gray-400 italic mb-2">*cannot below zero</p>
-            <input type="number" name="amount" required min="1" placeholder="12"
-                class="w-full border-2 border-gray-300 rounded-2xl px-6 py-3 text-lg font-bold focus:outline-none focus:border-red-500">
-        </div>
+        <form action="{{ route('staff.stock.update', $product->id) }}" method="POST" class="space-y-10">
+            @csrf @method('PUT')
+            
+            <div>
+                <h3 class="text-[10px] font-black text-[#BABABA] uppercase tracking-widest mb-4">Transaction Type</h3>
+                <div class="flex gap-4">
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="type" value="in" checked class="hidden peer">
+                        <div class="p-4 border-2 border-[#F9F9F9] rounded-2xl text-center transition-all peer-checked:border-[#1BCFD5] peer-checked:bg-green-50">
+                            <p class="text-[11px] font-black uppercase text-[#BABABA] peer-checked:text-[#1BCFD5]">Incoming Stock</p>
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="type" value="out" class="hidden peer">
+                        <div class="p-4 border-2 border-[#F9F9F9] rounded-2xl text-center transition-all peer-checked:border-[#CD2828] peer-checked:bg-red-50">
+                            <p class="text-[11px] font-black uppercase text-[#BABABA] peer-checked:text-[#CD2828]">Outgoing Stock</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
 
-        <div class="mb-8">
-            <h3 class="font-bold text-xl mb-1">Noted</h3>
-            <p class="text-[10px] text-gray-400 italic mb-2">*Restock from supplier A / broken items / adjusment</p>
-            <textarea name="note" rows="4" placeholder="restock"
-                class="w-full border-2 border-gray-300 rounded-2xl px-6 py-4 text-lg focus:outline-none focus:border-red-500"></textarea>
-        </div>
+            <div class="max-w-xs">
+                <h3 class="text-[10px] font-black text-[#BABABA] uppercase tracking-widest mb-2">Quantity Adjustment</h3>
+                <input type="number" name="amount" required min="1" placeholder="00"
+                    class="w-full bg-[#F9F9F9] border-2 border-transparent rounded-2xl px-6 py-4 text-xl font-black focus:outline-none focus:border-[#202020] transition-all">
+            </div>
 
-        <div class="flex justify-between items-center">
-            <a href="{{ route('staff.stock.index') }}" class="px-10 py-2 bg-[#BABABA] text-black font-bold rounded-full hover:bg-gray-400 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Back
-            </a>
-            <button type="submit" class="px-10 py-2 bg-[#1BCFD5] text-white font-bold rounded-full hover:opacity-90 shadow-lg">
-                Saved Changes
-            </button>
-        </div>
-    </form>
+            <div>
+                <h3 class="text-[10px] font-black text-[#BABABA] uppercase tracking-widest mb-2">Internal Note</h3>
+                <textarea name="note" rows="3" placeholder="REASON FOR ADJUSTMENT..."
+                    class="w-full bg-[#F9F9F9] border-2 border-transparent rounded-2xl px-6 py-4 text-xs font-bold uppercase focus:outline-none focus:border-[#202020] transition-all"></textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-6">
+                <a href="{{ route('staff.stock.index') }}" class="text-[10px] font-black text-[#BABABA] uppercase tracking-widest hover:text-[#202020] transition-all">Discard</a>
+                <button type="submit" class="bg-[#202020] text-[#FEFEFE] px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#CD2828] transition-all shadow-lg">
+                    Confirm Changes
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection

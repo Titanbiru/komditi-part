@@ -45,33 +45,41 @@ class StockController extends Controller
 
         $product = Product::findOrFail($productId);
 
-        DB::transaction(function () use ($product, $request) {
+        try {
+                
+            DB::transaction(function () use ($product, $request) {
 
-            $change = ($request->type == 'in') ? $request->amount : -$request->amount;
+                $change = ($request->type == 'in') ? $request->amount : -$request->amount;
 
-            $oldStock = $product->stock;
-            $newStock = $oldStock + $change;
+                $oldStock = $product->stock;
+                $newStock = $oldStock + $change;
 
-            if ($newStock < 0) {
-                throw new \Exception('Stok tidak mencukupi untuk dikurangi.');
-            }
-            $product->update([
-                'stock' => $newStock
-            ]);
+                if ($newStock < 0) {
+                    throw new \Exception('Stok saat ini (' . $oldStock . ') tidak mencukupi untuk dikurangi sebanyak ' . $request->amount . '.');
+                }
+                $product->update([
+                    'stock' => $newStock
+                ]);
 
-            StockHistory::create([
-                'product_id' => $product->id,
-                'users_id' => Auth::id(),
-                'amount' => $request->amount,
-                'type' => $request->type,
-                'note' => $request->note,
-                'stock_before' => $oldStock,
-                'stock_after' => $newStock,
-            ]);
-        });
+                StockHistory::create([
+                    'product_id' => $product->id,
+                    'users_id' => Auth::id(),
+                    'amount' => $request->amount,
+                    'type' => $request->type,
+                    'note' => $request->note,
+                    'stock_before' => $oldStock,
+                    'stock_after' => $newStock,
+                ]);
+            });
 
-        return back()->with('success', 'Stock updated successfully.');
+            return back()->with('success', 'Stock updated successfully.');
+        
+        }   catch (\Exception $e) {
+            // Balik ke halaman sebelumnya sambil bawa pesan error-nya
+            return back()->with('error', $e->getMessage())->withInput();
+        }
     }
+    
 
     public function history(Product $product)
     {

@@ -12,7 +12,13 @@ use App\Models\CartItem; // Sesuaikan dengan nama model CartItem Mas
 
 class ViewServiceProvider extends ServiceProvider
 {
-    public function register(): void { }
+    public function register(): void 
+    { 
+        $file = app_path('Helpers/settings.php');
+        if (file_exists($file)) {
+            require_once $file;
+        }
+    }
 
     public function boot(): void
     {

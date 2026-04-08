@@ -14,6 +14,7 @@ class Product extends Model
         'price',
         'description',
         'discount',
+        'is_promo',
         'stock',
         'weight',
         'status',
@@ -21,7 +22,8 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
-        'stock' => 'integer'
+        'stock' => 'integer',
+        'is_promo' => 'boolean',
     ];
 
     public function images()

@@ -15,12 +15,14 @@ class CartController extends Controller
     {
         $cart = Auth::user()->cart()->with('items.product')->first();
 
+        $cartItems = $cart ? $cart->items : collect();
+
         $breadcrumbs = [
             ['name' => 'Akun Saya', 'url' => route('user.account.profile')],
             ['name' => 'Keranjang Belanja', 'url' => null],
         ];  
 
-        return view('user.cart.index', compact('cart', 'breadcrumbs'));
+        return view('user.cart.index', compact('cart', 'breadcrumbs', 'cartItems'));
     }
 
     public function addToCart(Request $request, $productId)

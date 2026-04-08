@@ -97,7 +97,7 @@
                             <div class="w-[1px] h-8 bg-gray-100"></div>
                             <div class="flex flex-col items-end">
                                 <span class="text-[10px] font-black text-gray-400 uppercase italic">Terjual</span>
-                                <span class="text-xs font-black text-gray-800">{{ $product->order_items_count ?? '150+' }}</span>
+                                <span class="text-xs font-black text-gray-800">{{ $product->orderItems()->whereHas('order', fn($q) => $q->where('payment_status', 'paid'))->sum('quantity') ?? 0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -131,14 +131,16 @@
                             </div>
                             
                             {{-- Progress Bar Stok (Visual) --}}
+                            {{-- Progress Bar Stok --}}
                             <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                 @php
-                                    // Logic: Makin dikit stok (misal < 10), bar makin merah
-                                    $stockPercentage = ($product->stock / 100) * 100; // Asumsi stok max 100 untuk visual
-                                    if($stockPercentage > 100) $stockPercentage = 100;
+                                    // Misal kita asumsikan stok "aman" itu kalau di atas 20
+                                    $maxVisual = 20; 
+                                    $width = ($product->stock / $maxVisual) * 100;
+                                    if($width > 100) $width = 100;
                                 @endphp
-                                <div class="h-full {{ $product->stock <= 5 ? 'bg-red-500' : 'bg-cyan-400' }} rounded-full transition-all duration-1000" 
-                                    style="width: {{ $stockPercentage }}%"></div>
+                                <div class="h-full {{ $product->stock <= 5 ? 'bg-[#CD2828]' : 'bg-[#1BCFD5]' }} rounded-full transition-all duration-1000" 
+                                    style="width: {{ $width }}%"></div>
                             </div>
                             @if($product->stock <= 5 && $product->stock > 0)
                                 <p class="text-[9px] font-bold text-red-500 animate-pulse italic">Segera habis! Sisa {{ $product->stock }} lagi</p>

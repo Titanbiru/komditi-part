@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\StockHistory;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,26 +15,40 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        //Report utama menampilkan chart revenue & customer per month
+        // 1. Tangkap tahun dari request, default tahun saat ini
+        $year = $request->get('year', date('Y'));
 
-        $year = $request->year ?? date('Y');
+        // 2. Ambil Revenue per bulan di tahun tersebut
+        $monthlyRevenue = collect(range(1, 12))->map(function ($month) use ($year) {
+            return Order::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->where('payment_status', 'paid')
+                ->sum('grand_total');
+        });
 
-        $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(grand_total) as total')
-            ->whereYear('created_at', $year)
-            ->where('shipment_status', 'completed')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // 3. Ambil Customer baru per bulan di tahun tersebut
+        $monthlyCustomers = collect(range(1, 12))->map(function ($month) use ($year) {
+            return User::where('role', 'user')
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+        });
 
-        $monthlyCustomers = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->whereYear('created_at', $year)
-            ->where('role', 'user')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // Ambil daftar tahun unik dari data Order untuk dropdown (opsional tapi bagus)
+        $availableYears = Order::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+        
+        // Jika data kosong, pastikan tahun sekarang ada di list
+        if($availableYears->isEmpty()) $availableYears = collect([date('Y')]);
+        
 
         return view('admin.reports.index', compact(
             'monthlyRevenue',
             'monthlyCustomers',
-            'year'
+            'year',
+            'availableYears'
         ));
     }
 
@@ -114,14 +129,14 @@ class ReportController extends Controller
     {
         
         $order->load('items.product', 'user');
-        return view('admin.reports.transaction_detail', compact('order'));
+        return view('admin.reports.transactions-show', compact('order'));
     }
 
     public function stock(Request $request)
     {
         $totalProducts = Product::count();
-        $stockIn = Product::where('stock', '>', 0)->count();
-        $stockOut = Product::where('stock', 0)->count();
+        $stockIn = StockHistory::where('type', 'in')->sum('amount');
+        $stockOut = StockHistory::where('type', 'out')->sum('amount');
         $outOfStockProducts = Product::where('stock', 0)->count();
 
         $start = $request->start;
@@ -132,6 +147,7 @@ class ReportController extends Controller
         $stockHistory = DB::table('stock_histories')
             ->join('products', 'stock_histories.product_id', '=', 'products.id')
             ->select(
+                'stock_histories.product_id',
                 'products.name as product_name', 
                 'stock_histories.type as change_type', 
                 'stock_histories.amount as quantity', 
@@ -139,12 +155,22 @@ class ReportController extends Controller
             )
             ->when($start && $end, function($q) use ($start, $end) {
                 return $q->whereBetween('stock_histories.created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
-            })
-            ->orderBy('stock_histories.created_at', 'desc')
-            ->paginate(10);
+                })
+                ->orderBy('stock_histories.created_at', 'desc')
+                ->paginate(10);
+
         return view('admin.reports.stocks', compact('totalProducts', 'stockIn', 'stockOut', 'outOfStockProducts', 'stockHistory'));
     }
+                
+    public function stocksHistory(Product $product)
+    {
+        $histories = StockHistory::with('user')
+            ->where('product_id', $product->id)
+            ->latest()
+            ->paginate(10);
 
+        return view('admin.reports.stocks_history', compact('product', 'histories'));
+    }
     // --- 1. EXPORT SALES PDF ---
     public function exportSalesPdf(Request $request)
     {
@@ -191,6 +217,7 @@ class ReportController extends Controller
 
         return $pdf->download('Report-Stocks-'.$start.'-to-'.$end.'.pdf');
     }
+
 
     // --- 3. EXPORT TRANSACTIONS PDF ---
     public function exportTransactionsPdf(Request $request)

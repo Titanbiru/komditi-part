@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // public controllers
 use App\Http\Controllers\PublicController;
@@ -18,6 +20,8 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController; 
 use App\Http\Controllers\Admin\ReportController as AdminReportController; 
 use App\Http\Controllers\Admin\BackupController; 
+use App\Http\Controllers\Admin\SettingController; 
+
 // staff controllers 
 use App\Http\Controllers\StaffController; 
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController; 
@@ -43,15 +47,24 @@ Route::get('/', [HomeController::class, 'index'])->name('public.index');
 // Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
+
 Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
+->middleware('auth')
+->name('logout');
+
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
+
 // Public product view (guest boleh lihat)
 Route::get('/search', [ProductController::class, 'search'])->name('search');
-Route::get('/products', [HomeController::class, 'allProducts'])->name('public.products');
 Route::get('/products', [ProductController::class, 'index'])->name('public.products');
 
 // Halaman produk berdasarkan kategori (untuk fix error kamu)
@@ -81,12 +94,14 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    // Route::get('/checkout', [CheckoutController::class, 'index'])->middleware(['auth', 'verified']);
 
     Route::get('/orders', [OrderController::class, 'index'])->name('user.account.orders');
     Route::get('/orders/history', [OrderController::class, 'history'])->name('user.account.orders.history');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('user.account.orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('user.account.orders.cancel');
+    Route::put('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('user.account.orders.cancel');
     Route::put('/orders/{id}/delivered', [OrderController::class, 'markAsDelivered'])->name('user.account.orders.delivered');
+    Route::get('/account/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('user.account.orders.invoice');
 
     Route::get('/addresses', [AddressController::class, 'index'])->name('user.account.addresses');
     Route::get('/addresses/create', [AddressController::class, 'create'])->name('user.account.addresses.create');
@@ -107,7 +122,6 @@ Route::prefix('admin')
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
-
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
         Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
@@ -115,6 +129,7 @@ Route::prefix('admin')
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
         Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::put('/profile/password', [AdminUserController::class, 'updateAdmin'])->name('profile.update');
         
         Route::resource('categories', AdminCategoryController::class);
         Route::get('categories', [AdminCategoryController::class, 'index'])->name('categories.index');
@@ -128,23 +143,25 @@ Route::prefix('admin')
         Route::delete('/products/image/{id}', [AdminProductController::class, 'deleteImage'])->name('products.delete_image');
         Route::delete('/products/{products}', [AdminProductController::class, 'destroy'])->name('products.destroy');
 
-
-        // Route::get('/transactions/{order}', [AdminOrderController::class, 'show'])->name('transactions.show');
-
         Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/stocks', [AdminReportController::class, 'stock'])->name('reports.stocks');
         Route::get('/reports/transactions', [AdminReportController::class, 'transactions'])->name('reports.transactions');
-        Route::get('/reports/transactions/{order}', [AdminReportController::class, 'transactionShow'])->name('reports.transaction_detail');
+        Route::get('/reports/transactions/{order}', [AdminReportController::class, 'transactionShow'])->name('reports.transactions-show');
+        Route::get('/reports/invoice/{order}', [AdminReportController::class, 'invoice'])->name('reports.invoice');
         Route::get('/sales/pdf', [AdminReportController::class, 'exportSalesPdf'])->name('reports.sales.pdf');
         Route::get('/stocks/pdf', [AdminReportController::class, 'exportStocksPdf'])->name('reports.stocks.pdf');
         Route::get('/transactions/pdf', [AdminReportController::class, 'exportTransactionsPdf'])->name('reports.transactions.pdf');
+        Route::get('/reports/stocks_history/{product}', [AdminReportController::class, 'stocksHistory'])->name('reports.stocks_history');
 
         Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
         Route::post('/generate', [BackupController::class, 'backup'])->name('backup.generate');
-        Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
-        Route::delete('/delete/{filename}', [BackupController::class, 'delete'])->name('backup.delete');
+        Route::get('/download/{filename}', [BackupController::class, 'download'])->name('backups.download');
+        Route::delete('/delete/{filename}', [BackupController::class, 'delete'])->name('backups.delete');
         Route::post('/restore', [BackupController::class, 'restore'])->name('backup.restore');
+
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
 });
 
@@ -168,12 +185,15 @@ Route::prefix('staff')
         Route::get('/stock/{product}/history', [StaffStockController::class, 'history'])->name('stock.history');
 
         Route::get('/transactions', [StaffOrderController::class, 'index'])->name('transactions.index');
-        Route::get('/transactions/{id}/edit', [OrderController::class, 'edit'])->name('transactions.edit');
-        Route::put('/transactions/{id}', [OrderController::class, 'updateStatus'])->name('transactions.updateStatus');
+        Route::get('/transactions/{id}/edit', [StaffOrderController::class, 'edit'])->name('transactions.edit');
+        Route::get('/transactions/{id}', [StaffOrderController::class, 'show'])->name('transactions.show');
+        Route::patch('/transactions/{id}/payment', [StaffOrderController::class, 'updatePayment'])->name('transactions.updatePayment');
+        Route::put('/transactions/{id}/status', [StaffOrderController::class, 'updateStatus'])->name('transactions.updateStatus');
 
         Route::get('/reports', [StaffReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/sales', [StaffReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/stocks', [StaffReportController::class, 'stock'])->name('reports.stocks');
         Route::get('/reports/transactions', [StaffReportController::class, 'transactions'])->name('reports.transactions');
+        Route::get('/reports/transactions/{order}', [StaffReportController::class, 'transactionShow'])->name('reports.transaction_detail');
 
 });

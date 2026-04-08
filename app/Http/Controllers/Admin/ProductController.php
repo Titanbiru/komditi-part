@@ -55,6 +55,7 @@ class ProductController extends Controller
             'images'       => 'nullable|array|max:5',
             'images.*'     => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'status'       => 'required|in:active,inactive',
+            
         ]);
 
         // Simpan Produk (Price disimpan harga asli dari input)
@@ -108,6 +109,7 @@ class ProductController extends Controller
             'images'       => 'nullable|array|max:5',
             'images.*'     => 'image|mimes:jpeg,png,jpg,webp|max:2048',
             'status'       => 'required|in:active,inactive',
+            'is_promo'     => 'nullable|boolean'
         ]);
 
         $product->update([
@@ -116,6 +118,7 @@ class ProductController extends Controller
             'sku'         => $request->sku,
             'price'       => $request->price, // Update harga asli
             'discount'    => $request->discount ?? 0,
+            'is_promo'    => $request->boolean('is_promo'),
             'stock'       => $request->stock ?? $product->stock, // Tetap gunakan stok lama jika null
             'weight'      => $request->weight,
             'description' => $request->description,

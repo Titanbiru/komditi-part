@@ -14,7 +14,7 @@ class Order extends Model
         'order_number',
         'total_price',      // Harga barang saja (Subtotal)
         'shipping_cost',    // Ongkir yang dipilih
-        'admin_fee',        // Biaya admin (Rp 2.500)
+        'admin_fee',        // Biaya admin (Rp 2.500)           // Path foto bukti pembayaran
         'unique_code',      // Kode unik (3 digit terakhir)
         'grand_total',      // Total akhir (semua dijumlah)
         'shipping_name',    // Nama penerima
@@ -26,6 +26,9 @@ class Order extends Model
         'shipment_status',  // pending, proccess, shipped, delivered
         'payment_status',   // waiting_verification, paid, failed
         'shipping_snapshot',// Data backup kurir (Array)
+        'resi_number',      // No resi dari kurir (bisa null)
+        'receipt_image',    // Path foto bukti delivered
+        'delivered_at',     // Timestamp ketika pesanan diterima
     ];
 
     protected $casts = [
@@ -34,6 +37,7 @@ class Order extends Model
         'shipping_cost' => 'decimal:2',
         'admin_fee' => 'decimal:2',
         'grand_total' => 'decimal:2',
+        'delivered_at' => 'datetime',
     ];
 
     // RELASI

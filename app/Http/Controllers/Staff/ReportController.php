@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,27 +14,34 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        //Report utama menampilkan chart revenue & customer per month
+        // 1. Tangkap tahun, default tahun sekarang
+        $year = $request->get('year', date('Y'));
 
-        $year = $request->year ?? date('Y');
+        // 2. Hitung Revenue per bulan (Hanya yang sudah PAID)
+        $monthlyRevenue = collect(range(1, 12))->map(function ($month) use ($year) {
+            return Order::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->where('payment_status', 'paid')
+                ->sum('grand_total');
+        });
 
-        $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(grand_total) as total')
-            ->whereYear('created_at', $year)
-            ->where('shipment_status', 'completed')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // 3. Hitung Customer Baru per bulan
+        $monthlyCustomers = collect(range(1, 12))->map(function ($month) use ($year) {
+            return User::where('role', 'user')
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+        });
 
-        $monthlyCustomers = User::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->whereYear('created_at', $year)
-            ->where('role', 'user')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // 4. Ambil daftar tahun yang ada transaksinya buat dropdown
+        $availableYears = Order::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+        
+        if($availableYears->isEmpty()) $availableYears = collect([date('Y')]);
 
-        return view('staff.reports.index', compact(
-            'monthlyRevenue',
-            'monthlyCustomers',
-            'year'
-        ));
+        return view('staff.reports.index', compact('monthlyRevenue', 'monthlyCustomers', 'year', 'availableYears'));
     }
 
     public function sales(Request $request)
@@ -50,7 +58,7 @@ class ReportController extends Controller
                 return $q->whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
             })
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         // Statistik Card
         $totalRevenue = Order::where('payment_status', 'paid')
@@ -59,12 +67,15 @@ class ReportController extends Controller
             })->sum('grand_total');
         
         // Menghitung total quantity semua barang yang terjual
-        $totalQuantitySold = \App\Models\OrderItem::whereHas('order', function($q) {
-            $q->where('payment_status', 'paid');
+        $totalQuantitySold = OrderItem::whereHas('order', function($q) use ($start, $end) {
+            $q->where('payment_status', 'paid')
+            ->when($start && $end, function($query) use ($start, $end) {
+                return $query->whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
+            });
         })->sum('quantity');
 
         // Menghitung berapa banyak jenis produk unik yang pernah terjual
-        $totalProductsSold = \App\Models\OrderItem::whereHas('order', function($q) {
+        $totalProductsSold = OrderItem::whereHas('order', function($q) use ($start, $end) {
             $q->where('payment_status', 'paid');
         })->distinct('product_id')->count();
 
@@ -94,7 +105,7 @@ class ReportController extends Controller
                 return $q->whereBetween('created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
             })
             ->latest()
-            ->paginate(10);
+            ->paginate(5);
 
         // Hitung stats berdasarkan filter
         
@@ -140,7 +151,7 @@ class ReportController extends Controller
                 return $q->whereBetween('stock_histories.created_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
             })
             ->orderBy('stock_histories.created_at', 'desc')
-            ->paginate(10);
+            ->paginate(5);
         return view('staff.reports.stocks', compact('totalProducts', 'stockIn', 'stockOut', 'outOfStockProducts', 'stockHistory'));
     }
 }

@@ -1,87 +1,72 @@
 @extends('layouts.staff')
 
 @section('content')
-<div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-[#CD2828]">product</h1>
-    <div class="flex items-center gap-3">
-        <span class="text-gray-700 font-medium">{{ auth()->user()->name }}</span>
-        <span class="px-4 py-1 bg-[#832A2A] text-white text-sm rounded-full font-medium">staff</span>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h1 class="text-3xl font-black text-[#202020] uppercase tracking-tighter">Product Inventory</h1>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Manage and monitor your stock items</p>
+    </div>
+    <div class="flex items-center gap-3 bg-white p-2 rounded-2xl border-2 border-gray-100 shadow-sm">
+        <span class="text-[10px] font-black uppercase text-gray-400 ml-2">Staff:</span>
+        <span class="px-4 py-1 bg-black text-white text-[10px] rounded-xl font-black uppercase">{{ auth()->user()->name }}</span>
     </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-md border border-[#BABABA] overflow-hidden">
-    <div class="flex justify-between items-center px-6 py-5 border-b border-[#BABABA]">
-        <div class="relative">
+<div class="bg-white rounded-[2rem] shadow-sm border-2 border-gray-100 overflow-hidden">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 border-b border-gray-100 gap-4">
+        <div class="relative w-full md:w-80">
             <form action="{{ route('staff.products.index') }}" method="GET">
-                <input type="text" name="search" placeholder="search" value="{{ request('search') }}"
-                    class="border border-[#BABABA] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#CD2828] w-80">
+                <input type="text" name="search" placeholder="SEARCH PRODUCT..." value="{{ request('search') }}"
+                    class="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 text-[11px] font-black uppercase focus:outline-none focus:border-[#CD2828] transition-all">
             </form>
-            <p class="text-xs text-gray-400 mt-1 ml-4">*find by category using search</p>
+            <p class="text-[9px] font-bold text-gray-300 mt-2 uppercase tracking-widest px-2">*Find by category or name</p>
         </div>
     </div>
 
     <div class="overflow-x-auto">
         <table class="min-w-full">
-            <thead class="bg-[#C4C4C4]">
+            <thead class="bg-[#F3F3F3] border-b-2 border-black">
                 <tr>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Product Name</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">SKU</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Price</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Stock</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">status</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black">Action</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Product</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">SKU</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Price</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Stock</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Status</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-black uppercase tracking-widest">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-[#BABABA]">
+            <tbody class="divide-y-2 divide-gray-50 text-[11px] font-bold uppercase">
                 @forelse($products as $p)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 text-sm text-gray-900 uppercase font-medium">{{ $p->name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $p->sku }}</td>
-                        <td class="px-6 py-4">
-                            @if($p->discount > 0)
-                                @php
-                                    // Hitung harga setelah diskon
-                                    $finalPrice = $p->price - ($p->price * $p->discount / 100);
-                                @endphp
-                                
-                                <div class="flex flex-col">
-                                    {{-- Harga Final (Besar & Tebal) --}}
-                                    <span class="text-sm text-gray-900 font-bold">
-                                        Rp {{ number_format($finalPrice, 0, ',', '.') }}
-                                    </span>
-                                    
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-[10px] text-[#CD2828] font-semibold">
-                                            -{{ $p->discount }}%
-                                        </span>
-                                    </div>
-                                </div>
-                            @else
-                                {{-- Harga Normal (Jika tidak ada diskon) --}}
-                                <span class="text-sm text-gray-900 font-bold">
-                                    Rp {{ number_format($p->price, 0, ',', '.') }}
-                                </span>
-                            @endif
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-8 py-5 text-[#202020] font-black">{{ $p->name }}</td>
+                        <td class="px-6 py-5 text-gray-400 font-black">{{ $p->sku }}</td>
+                        <td class="px-6 py-5">
+                            @php $finalPrice = $p->discount > 0 ? $p->price - ($p->price * $p->discount / 100) : $p->price; @endphp
+                            <div class="flex flex-col">
+                                <span class="text-[12px] text-[#202020] font-black">Rp {{ number_format($finalPrice, 0, ',', '.') }}</span>
+                                @if($p->discount > 0)
+                                    <span class="text-[9px] text-[#CD2828] font-black">OFF {{ $p->discount }}%</span>
+                                @endif
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ $p->stock }}</td>
-                        <td class="px-6 py-4 text-sm">
-                            <span class="{{ $p->status == 'active' ? 'text-green-500' : 'text-yellow-500' }} font-bold">
-                                {{ ucfirst($p->status) }}
+                        <td class="px-6 py-5">
+                            <span class="{{ $p->stock < 10 ? 'text-[#CD2828]' : 'text-gray-800' }} font-black">
+                                {{ $p->stock }} UNIT
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm">
-                            <a href="{{ route('staff.products.show', $p) }}" class="text[#BABABA] hover:underline">Show</a>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 rounded-lg text-[9px] font-black {{ $p->status == 'active' ? 'bg-green-100 text-green-600 border border-green-200' : 'bg-yellow-100 text-yellow-600 border border-yellow-200' }}">
+                                {{ strtoupper($p->status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            <a href="{{ route('staff.products.show', $p) }}" class="bg-black text-white px-4 py-2 rounded-xl text-[9px] font-black hover:bg-[#CD2828] transition-all">View</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
-                            <div class="flex flex-col items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                </svg>
-                                <p class="text-gray-500 font-medium italic">Belum ada product yang terdaftar.</p>
-                            </div>
+                        <td colspan="6" class="px-8 py-20 text-center">
+                            <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.5em]">No products registered</p>
                         </td>
                     </tr>
                 @endforelse
@@ -89,7 +74,7 @@
         </table>
     </div>
 
-    <div class="px-6 py-4 border-t border-[#BABABA] bg-gray-50">
+    <div class="px-8 py-6 border-t-2 border-gray-50 bg-gray-50/50">
         {{ $products->appends(request()->query())->links() }}
     </div>
 </div>

@@ -6,10 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Komditi Part {{ $title ?? 'Dashboard' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
 
@@ -20,24 +19,29 @@
     @include('components.alert')
     
     {{-- Main Content --}}
-    <main class="pt-4 pb-12">
+    <main class="pt-4 pb-28 lg:pb-12 bg-[#F9F9F9]">
         <div class="container mx-auto px-4 max-w-7xl">
-            {{-- Gunakan Flex untuk membagi Kiri (Sidebar) dan Kanan (Content) --}}
+            
             @isset($breadcrumbs)
                 @include('components.breadcrumbs', ['links' => $breadcrumbs])
             @endisset
-            <div class="flex flex-col lg:flex-row gap-8">
-                {{-- Bagian Sidebar --}}
-                @include('components.sidebar.user') {{-- Pastikan path ini benar! --}}
 
-                {{-- Bagian Konten Utama --}}
-                <div class="flex-1">
+            <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+    
+                {{-- SIDEBAR DESKTOP --}}
+                <aside class="hidden lg:block w-[300px] flex-none">
+                    @include('components.sidebar.user')
+                </aside>
+
+                {{-- KONTEN UTAMA --}}
+                <section class="flex-auto min-w-0 w-full">
                     @yield('content')
-                </div>
+                </section>
                 
             </div>
         </div>
     </main>
+    @include('components.sidebar.bottom-nav')
 
     @stack('scripts')
 </body>

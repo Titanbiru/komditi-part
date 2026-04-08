@@ -1,5 +1,5 @@
-<div class="w-full lg:w-1/4">
-    <div class="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm space-y-6">
+<div class="w-full">
+    <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm space-y-6 sticky top-24">
         <div class="px-2">
             <h2 class="text-sm font-bold text-gray-400 italic">Hello, <span class="text-[#CD2828]">{{ Auth::user()->name }}!</span></h2>
         </div>
@@ -28,7 +28,7 @@
 
             {{-- Menu Produk / Favorit --}}
             <a href="{{ route('user.account.favorites') }}" 
-               class="flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all {{ request()->routeIs('user.account.favorites*') ? 'bg-[#CD2828] text-white shadow-lg shadow-red-100' : 'text-gray-500 hover:bg-gray-50 border border-transparent hover:border-gray-100' }}">
+                class="flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all {{ request()->routeIs('user.account.favorites*') ? 'bg-[#CD2828] text-white shadow-lg shadow-red-100' : 'text-gray-500 hover:bg-gray-50 border border-transparent hover:border-gray-100' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-width="2"/></svg>
                 Produk Saya
             </a>

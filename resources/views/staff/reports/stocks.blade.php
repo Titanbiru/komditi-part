@@ -1,81 +1,60 @@
 @extends('layouts.staff')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Inventory & Stock Report</h1>
+<div class="mb-10 px-2">
+    <h1 class="text-3xl font-black text-[#202020] uppercase tracking-tighter">Inventory Report</h1>
+    <p class="text-[10px] font-bold text-[#BABABA] uppercase tracking-widest mt-1">Stock Level & Movement Logs</p>
 </div>
 
-{{-- NAV --}}
-<div class="bg-white border-2 border-black rounded-3xl p-6 mb-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-    <a href="{{ route('staff.reports.index') }}" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
-    </a>
-    <div class="flex gap-2">
-        @php
-                $menus = [
-                    ['name' => 'Sales', 'route' => 'staff.reports.sales'],
-                    ['name' => 'Stock', 'route' => 'staff.reports.stocks'],
-                    ['name' => 'Transaction', 'route' => 'staff.reports.transactions'],
-                ];
-            @endphp
-        @foreach($menus as $menu)
-            <a href="{{ route($menu['route']) }}" class="px-6 py-1 rounded-full border-2 border-black text-sm font-bold {{ Route::currentRouteName() == $menu['route'] ? 'bg-[#CD2828] text-white border-[#CD2828]' : 'bg-white' }}">
-                {{ $menu['name'] }}
-            </a>
-        @endforeach
-    </div>
-    <form class="flex gap-2">
-        <input type="date" name="start" value="{{ request('start') }}" class="border-2 border-black rounded-lg px-2 text-sm">
-        <input type="date" name="end" value="{{ request('end') }}" class="border-2 border-black rounded-lg px-2 text-sm">
-        <button type="submit" class="bg-[#1BCFD5] text-white px-4 py-1 rounded-full font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Filter</button>
-    </form>
+<div class="py-4">
+    @include('staff.reports._filter')
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-    <div class="bg-white border-2 border-black p-6 rounded-2xl text-center shadow-sm">
-        <h4 class="text-gray-500 font-bold text-xs uppercase">Total Products</h4>
-        <p class="text-2xl font-black">{{ $totalProducts }}</p>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <div class="bg-white border border-[#BABABA]/20 p-6 rounded-[2rem] shadow-sm">
+        <h4 class="text-[#BABABA] font-black text-[9px] uppercase tracking-widest mb-2">Total Items</h4>
+        <p class="text-2xl font-black text-[#202020]">{{ $totalProducts }}</p>
     </div>
-    <div class="bg-white border-2 border-black p-6 rounded-2xl text-center shadow-sm">
-        <h4 class="text-gray-500 font-bold text-xs uppercase">In Stock</h4>
-        <p class="text-2xl font-black text-green-600">{{ $stockIn }}</p>
+    <div class="bg-white border border-[#BABABA]/20 p-6 rounded-[2rem] shadow-sm border-l-4 border-l-green-400">
+        <h4 class="text-[#BABABA] font-black text-[9px] uppercase tracking-widest mb-2">In Stock</h4>
+        <p class="text-2xl font-black text-green-500">{{ $stockIn }}</p>
     </div>
-    <div class="bg-white border-2 border-black p-6 rounded-2xl text-center shadow-sm">
-        <h4 class="text-gray-500 font-bold text-xs uppercase">Out of Stock</h4>
-        <p class="text-2xl font-black text-red-600">{{ $stockOut }}</p>
+    <div class="bg-white border border-[#BABABA]/20 p-6 rounded-[2rem] shadow-sm border-l-4 border-l-orange-400">
+        <h4 class="text-[#BABABA] font-black text-[9px] uppercase tracking-widest mb-2">Out of Stock</h4>
+        <p class="text-2xl font-black text-orange-400">{{ $stockOut }}</p>
     </div>
-    <div class="bg-[#CD2828] text-white border-2 border-black p-6 rounded-2xl text-center shadow-sm">
-        <h4 class="font-bold text-xs uppercase opacity-80">Urgent Restock</h4>
-        <p class="text-2xl font-black">{{ $outOfStockProducts }} Items</p>
+    <div class="bg-white border border-[#BABABA]/20 p-6 rounded-[2rem] shadow-sm border-l-4 border-l-[#CD2828]">
+        <h4 class="text-[#BABABA] font-black text-[9px] uppercase tracking-widest mb-2">Restock Alert</h4>
+        <p class="text-2xl font-black text-[#CD2828]">{{ $outOfStockProducts }} <span class="text-[10px] text-[#BABABA]">SKU</span></p>
     </div>
 </div>
 
-<div class="bg-white border-2 border-black rounded-2xl overflow-hidden shadow-sm">
-    <div class="p-4 bg-gray-50 border-b-2 border-black font-black uppercase text-sm">Stock Movement History</div>
+<div class="bg-white border border-[#BABABA]/20 rounded-[2rem] overflow-hidden shadow-sm">
+    <div class="px-8 py-4 bg-[#F3F3F3] border-b-2 border-white text-[10px] font-black uppercase tracking-widest text-[#202020]">Stock Movement History</div>
     <table class="w-full text-left">
-        <thead class="bg-gray-100 border-b border-black">
+        <thead class="bg-[#F9F9F9] border-b border-[#BABABA]/10 text-[9px] font-black uppercase tracking-widest text-[#BABABA]">
             <tr>
-                <th class="p-4 font-black text-xs uppercase">Product Name</th>
-                <th class="p-4 font-black text-xs uppercase">Type</th>
-                <th class="p-4 font-black text-xs uppercase">Amount</th>
-                <th class="p-4 font-black text-xs uppercase">Date</th>
+                <th class="p-5 border-r border-[#BABABA]/5">Product Name</th>
+                <th class="p-5 text-center border-r border-[#BABABA]/5">Type</th>
+                <th class="p-5 text-center border-r border-[#BABABA]/5">Qty</th>
+                <th class="p-5 text-right">Timestamp</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-[#BABABA]/10 text-[11px] font-bold uppercase text-[#202020]">
             @foreach($stockHistory as $history)
-            <tr class="border-b border-gray-100">
-                <td class="p-4 font-bold">{{ $history->product_name }}</td>
-                <td class="p-4">
-                    <span class="px-2 py-1 rounded text-[10px] font-black uppercase {{ $history->change_type == 'in' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600' }}">
-                        {{ $history->change_type }}
+            <tr class="hover:bg-[#F9F9F9]">
+                <td class="p-5 font-black">{{ $history->product_name }}</td>
+                <td class="p-5 text-center">
+                    <span class="px-3 py-1 rounded-lg text-[8px] font-black {{ $history->change_type == 'in' ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-orange-500' }}">
+                        {{ strtoupper($history->change_type) }}
                     </span>
                 </td>
-                <td class="p-4 font-black">{{ $history->quantity }}</td>
-                <td class="p-4 text-gray-500 text-sm">{{ $history->created_at }}</td>
+                <td class="p-5 text-center font-black">{{ $history->quantity }}</td>
+                <td class="p-5 text-right text-[#BABABA] tracking-tighter">{{ date('d/m/y H:i', strtotime($history->created_at)) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 </div>
-<div class="mt-6">{{ $stockHistory->links() }}</div>
+<div class="mt-8">{{ $stockHistory->links() }}</div>
 @endsection

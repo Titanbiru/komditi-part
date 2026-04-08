@@ -3,47 +3,55 @@
 <head>
     <title>Stock Report - {{ date('d/m/Y') }}</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.5; }
-        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .period { font-size: 12px; color: #666; margin-bottom: 20px; }
+        @page { margin: 1cm; }
+        body { font-family: 'Helvetica', sans-serif; color: #202020; font-size: 10pt; }
+        .header { border-bottom: 3px solid #202020; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 22pt; font-weight: 900; text-transform: uppercase; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 8pt; font-weight: 900; }
+        .badge-in { background-color: #e6fffa; color: #2c7a7b; }
+        .badge-out { background-color: #fff5f5; color: #c53030; }
+
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ccc; padding: 10px; font-size: 11px; text-align: left; }
-        th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; }
-        .type-in { color: green; font-weight: bold; }
-        .type-out { color: red; font-weight: bold; }
+        th { border-bottom: 2px solid #202020; text-align: left; padding: 12px 10px; font-size: 8pt; font-weight: 900; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; font-size: 9pt; }
+        
+        .info-table { width: 100%; margin-bottom: 20px; font-size: 9pt; font-weight: bold; color: #666; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2 style="margin:0;">KOMDITI PART</h2>
-        <h3 style="margin:5px 0;">STOCK MOVEMENT REPORT</h3>
+        <h1>Stock Movement</h1>
+        <div style="font-weight: 900; color: #CD2828;">KOMDITI PART INVENTORY</div>
     </div>
 
-    <div class="period">
-        <strong>Periode:</strong> {{ $start ?? 'Awal' }} s/d {{ $end ?? 'Sekarang' }} <br>
-        <strong>Dicetak pada:</strong> {{ date('d M Y H:i') }}
-    </div>
+    <table class="info-table">
+        <tr>
+            <td>PERIODE: {{ $start ?? 'AWAL' }} - {{ $end ?? 'SEKARANG' }}</td>
+            <td style="text-align: right;">PRINTED BY ADMIN: {{ date('d/m/Y H:i') }}</td>
+        </tr>
+    </table>
 
     <table>
         <thead>
             <tr>
-                <th>Product Name</th>
-                <th style="text-align: center;">Type</th>
-                <th style="text-align: center;">Amount</th>
-                <th style="text-align: center;">Date & Time</th>
+                <th>PRODUCT NAME</th>
+                <th style="text-align: center;">TYPE</th>
+                <th style="text-align: center;">AMOUNT</th>
+                <th style="text-align: right;">DATE & TIME</th>
             </tr>
         </thead>
         <tbody>
             @foreach($stockHistory as $h)
             <tr>
-                <td>{{ $h->product_name }}</td>
+                <td style="font-weight: bold; text-transform: uppercase;">{{ $h->product_name }}</td>
                 <td style="text-align: center;">
-                    <span class="{{ $h->change_type == 'in' ? 'type-in' : 'type-out' }}">
+                    <span class="badge {{ $h->change_type == 'in' ? 'badge-in' : 'badge-out' }}">
                         {{ strtoupper($h->change_type) }}
                     </span>
                 </td>
-                <td style="text-align: center;">{{ $h->quantity }} Unit</td>
-                <td style="text-align: center;">{{ date('d/m/Y H:i', strtotime($h->created_at)) }}</td>
+                <td style="text-align: center; font-weight: 900;">{{ $h->quantity }} UNITS</td>
+                <td style="text-align: right; color: #bababa;">{{ date('d/m/Y H:i', strtotime($h->created_at)) }}</td>
             </tr>
             @endforeach
         </tbody>

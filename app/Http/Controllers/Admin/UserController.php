@@ -10,13 +10,27 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Cari data staff (role: staff)
-        $staff = User::where('role', 'staff')->latest()->paginate(5, ['*'], 'staff_page');
+        // Search logic (biar input search di Blade Mas jalan)
+        $searchStaff = $request->input('search_staff');
+        $searchUser = $request->input('search_user');
 
-        // Cari data user (role: user)
-        $users = User::where('role', 'user')->latest()->paginate(5, ['*'], 'user_page');
+        $staff = User::where('role', 'staff')
+            ->when($searchStaff, function($query) use ($searchStaff) {
+                $query->where('name', 'like', "%{$searchStaff}%")
+                    ->orWhere('email', 'like', "%{$searchStaff}%");
+            })
+            ->latest()
+            ->paginate(5, ['*'], 'staff_page');
+
+        $users = User::where('role', 'user')
+            ->when($searchUser, function($query) use ($searchUser) {
+                $query->where('name', 'like', "%{$searchUser}%")
+                    ->orWhere('email', 'like', "%{$searchUser}%");
+            })
+            ->latest()
+            ->paginate(5, ['*'], 'user_page');
 
         return view('admin.users.index', compact('staff', 'users'));
     }
@@ -130,6 +144,34 @@ class UserController extends Controller
 
         $user->delete();
         return back()->with('success', 'User deleted successfully.');
+    }
+
+    public function updateAdmin(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'current_password' => 'required',
+            'new_password' => 'nullable|min:8|confirmed',
+        ]);
+
+        // 1. Verifikasi password saat ini
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini tidak cocok.']);
+        }
+
+        // 2. Update Email
+        $user->email = $request->email;
+
+        // 3. Update Password jika diisi
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profil dan keamanan berhasil diperbarui!');
     }
 
 }

@@ -14,9 +14,11 @@ class FavoriteController extends Controller
         // Tetap seperti punya Mas, sudah bagus
         $favorites = Auth::user()
             ->favorites()
+            ->where('status', 'active') // Pastikan hanya produk aktif yang ditampilkan
             ->with(['images', 'categories']) // Eager load biar ga lambat
             ->latest()
             ->paginate(12);
+            
         $breadcrumbs = [
                 ['name' => 'Akun Saya', 'url' => route('user.account.profile')],
                 ['name' => 'Produk Saya (Favorit)', 'url' => null],

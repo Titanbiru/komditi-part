@@ -24,10 +24,11 @@
         </div>
     @else
         {{-- Grid Produk Favorit --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($favorites as $product)
-                {{-- Panggil component kartu di sini --}}
-                @include('components.product-card', ['product' => $product])
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:fap-6">
+            @foreach($favorites as $item)
+                @if($item)
+                    @include('components.product-card', ['product' => $item])
+                @endif
             @endforeach
         </div>
 

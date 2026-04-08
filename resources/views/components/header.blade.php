@@ -1,7 +1,9 @@
 <header class="bg-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
-
+            @php
+                $isAdminOrStaff = auth()->check() && in_array(auth()->user()->role ?? '', ['admin', 'staff']);
+            @endphp
             {{-- Logo --}}
             <div class="flex-shrink-0">
                 @if (auth()->check())
@@ -13,11 +15,22 @@
                             default => route('public.index'), 
                         };
                     @endphp
-
-                    <a href="{{ $dashboardUrl }}" 
-                    class="flex items-center text-[#202020] hover:text-[#CD2828] transition-colors">
-                        <span class="text-2xl font-bold tracking-tighter">Komditi Part</span>
-                    </a>
+                
+                    
+                    <div class="flex items-center flex-shrink-0">
+                        {{-- TOMBOL HAMBURGER (Hanya muncul di Admin/Staff & Layar HP) --}}
+                        @if($isAdminOrStaff)
+                        <button onclick="toggleSidebar()" class="mr-4 lg:hidden text-[#202020] hover:text-[#CD2828] focus:outline-none">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                            </svg>
+                        </button>
+                        @endif
+                        <a href="{{ $dashboardUrl }}" 
+                        class="flex items-center text-[#202020] hover:text-[#CD2828] transition-colors">
+                            <span class="text-2xl font-bold tracking-tighter">Komditi Part</span>
+                        </a>
+                    </div>
                 @else
                     <a href="{{ url('/') }}" 
                     class="flex items-center text-[#202020] hover:text-[#CD2828] transition-colors">
@@ -26,11 +39,7 @@
                 @endif
             </div>
 
-            {{-- PHP untuk cek role --}}
-            @php
-                $isAdminOrStaff = auth()->check() && in_array(auth()->user()->role ?? '', ['admin', 'staff']);
-            @endphp
-
+            
             {{-- Search Bar (hanya untuk guest + user) --}}
             @if (!$isAdminOrStaff)
             <div class="hidden md:flex flex-1 max-w-md mx-8">
@@ -108,28 +117,7 @@
                         <span class="hidden md:inline font-medium">Login</span>
                     </a>
                 @endauth
-
-                {{-- Mobile hamburger (bisa dikembangkan dengan Alpine.js / JS) --}}
-                <button class="md:hidden text-[var(--text-color)] hover:text-[var(--primary)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
             </div>
         </div>
     </div>
-
-    {{-- Nav bawah (Product & Contact) — HANYA untuk guest + role user --}}
-    @if (!$isAdminOrStaff)
-    <div class="border-t border-[var(--2nd-color)] bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex justify-center gap-x-12 text-sm font-medium py-3">
-                <a href="{{ route('public.products') ?? '#' }}" 
-                    class="text-[var(--text-color)] hover:text-[var(--primary)] transition-colors">Product</a>
-                <a href="{{ route('contact.index') ?? '#' }}" 
-                    class="text-[var(--text-color)] hover:text-[var(--primary)] transition-colors">Contact</a>
-            </nav>
-        </div>
-    </div>
-    @endif
 </header>

@@ -1,81 +1,96 @@
 @extends('layouts.staff')
 
 @section('content')
-<div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Transaction</h1>
-    <div class="relative">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 px-2">
+    <div>
+        <h1 class="text-3xl font-black text-[#202020] uppercase tracking-tighter">Transaction</h1>
+        <p class="text-[10px] font-bold text-[#BABABA] uppercase tracking-widest mt-1">Order Monitoring System</p>
+    </div>
+    <div class="relative w-full md:w-80">
         <form action="{{ route('staff.transactions.index') }}" method="GET">
-            <input type="text" name="search" placeholder="search" value="{{ request('search') }}"
-                class="border border-[#BABABA] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#CD2828] w-80 shadow-sm">
+            <input type="text" name="search" placeholder="SEARCH ORDER ID / CUSTOMER..." value="{{ request('search') }}"
+                class="w-full border-2 border-[#BABABA]/20 rounded-2xl px-5 py-3 text-[11px] font-black uppercase focus:outline-none focus:border-[#CD2828] bg-white transition-all shadow-sm">
         </form>
-        <p class="text-[10px] text-gray-400 mt-1 text-center font-medium italic">*find by category using search</p>
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="border-2 border-black rounded-2xl p-6 bg-white">
-        <h3 class="text-sm font-bold mb-2 uppercase tracking-tight">Total Transaction</h3>
-        <p class="text-4xl font-bold text-[#CD2828]">{{ $totalTransaction }}</p>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <div class="border border-[#BABABA]/20 rounded-2xl p-5 bg-white shadow-sm">
+        <h3 class="text-[9px] font-black text-[#BABABA] uppercase mb-2 tracking-widest">Total Orders</h3>
+        <p class="text-2xl font-black text-[#202020]">{{ $totalTransaction }}</p>
     </div>
-    <div class="border-2 border-black rounded-2xl p-6 bg-white">
-        <h3 class="text-sm font-bold mb-2 uppercase tracking-tight">Pending Transaction</h3>
-        <p class="text-3xl font-bold text-[#CD2828]">{{ $pendingTransaction }} <span class="text-black text-2xl font-bold">transaction</span></p>
+    <div class="border border-[#BABABA]/20 rounded-2xl p-5 bg-white shadow-sm border-l-4 border-l-orange-400">
+        <h3 class="text-[9px] font-black text-[#BABABA] uppercase mb-2 tracking-widest">Pending</h3>
+        <p class="text-2xl font-black text-orange-400">{{ $pendingTransaction }}</p>
     </div>
-    <div class="border-2 border-black rounded-2xl p-6 bg-white">
-        <h3 class="text-sm font-bold mb-2 uppercase tracking-tight">Paid Transaction</h3>
-        <p class="text-3xl font-bold text-[#CD2828]">{{ $paidTransaction }} <span class="text-black text-2xl font-bold">transaction</span></p>
+    <div class="border border-[#BABABA]/20 rounded-2xl p-5 bg-white shadow-sm border-l-4 border-l-[#1BCFD5]">
+        <h3 class="text-[9px] font-black text-[#BABABA] uppercase mb-2 tracking-widest">Paid</h3>
+        <p class="text-2xl font-black text-[#1BCFD5]">{{ $paidTransaction }}</p>
     </div>
-    <div class="border-2 border-black rounded-2xl p-6 bg-white">
-        <h3 class="text-sm font-bold mb-2 uppercase tracking-tight">Shippment</h3>
-        <p class="text-3xl font-bold text-[#CD2828]">{{ $shipment }} <span class="text-black text-2xl font-bold">transaction</span></p>
+    <div class="border border-[#BABABA]/20 rounded-2xl p-5 bg-white shadow-sm border-l-4 border-l-[#202020]">
+        <h3 class="text-[9px] font-black text-[#BABABA] uppercase mb-2 tracking-widest">Shipping</h3>
+        <p class="text-2xl font-black text-[#202020]">{{ $processingShipment }}</p>
     </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-md border border-[#BABABA] overflow-hidden">
+<div class="bg-white rounded-[2rem] border border-[#BABABA]/20 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
         <table class="min-w-full">
-            <thead class="bg-[#C4C4C4]">
+            <thead class="bg-[#F3F3F3] border-b-2 border-black">
                 <tr>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Order id</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white text-center">Date</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Customer Name</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white">Subtotal</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white text-center">Status Payment</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black border-r border-white text-center">Status Shippment</th>
-                    <th class="px-6 py-3 text-left text-sm font-bold text-black text-center">Action</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Order ID</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Date</th>
+                    <th class="px-6 py-4 text-left text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Customer</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Payment</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-black uppercase tracking-widest border-r-2 border-white">Shipment</th>
+                    <th class="px-6 py-4 text-center text-[10px] font-black text-black uppercase tracking-widest">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-[#BABABA]">
+            <tbody class="divide-y-2 divide-gray-50 text-[11px] font-bold uppercase">
                 @forelse($transactions as $t)
                 <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 text-sm font-bold text-gray-800">{{ $t->order_number }}</td>
-                    <td class="px-6 py-4 text-sm text-center text-gray-600">{{ $t->created_at->format('d/m/Y') }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-800 font-medium">{{ $t->user->name }}</td>
-                    <td class="px-6 py-4 text-sm font-bold">Rp {{ number_format($t->grand_total, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 text-sm text-center">
-                        @if($t->payment_status == 'paid')
-                            <span class="text-green-500 font-bold">Paid</span>
-                        @elseif($t->payment_status == 'pending')
-                            <span class="text-yellow-500 font-bold">Unpaid</span>
-                        @else
-                            <span class="text-red-500 font-bold uppercase">{{ $t->payment_status }}</span>
-                        @endif
+                    <td class="px-8 py-5 text-[#202020] font-black tracking-tighter">{{ $t->order_number }}</td>
+                    <td class="px-6 py-5 text-center text-[#BABABA]">{{ $t->created_at->format('d/m/Y') }}</td>
+                    <td class="px-6 py-5 text-[#202020] truncate max-w-[150px]">{{ $t->user->name }}</td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="px-3 py-1 rounded-lg text-[9px] font-black 
+                            {{ $t->payment_status == 'paid' ? 'bg-green-50 text-[#1BCFD5] border border-green-100' : 'bg-red-50 text-[#CD2828] border border-red-100' }}">
+                            {{ strtoupper($t->payment_status) }}
+                        </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-center font-medium text-gray-700">
-                        {{ ucfirst($t->shipment_status) }}
+                    <td class="px-6 py-5 text-center text-gray-400">
+                        {{ $t->shipment_status }}
                     </td>
-                    <td class="px-6 py-4 text-sm text-center">
-                        <a href="{{ route('staff.transactions.show', $t->id) }}" class="text-[#1BCFD5] font-bold hover:underline">Update</a>
+                    <td class="px-6 py-5 text-center">
+                        <div class="flex justify-center gap-3">
+                            {{-- TOMBOL MANAGE --}}
+                            <a href="{{ route('staff.transactions.edit', $t->id) }}" 
+                            class="bg-black text-[#FEFEFE] px-4 py-2 rounded-xl text-[9px] font-black hover:bg-[#CD2828] transition-all flex items-center gap-2 uppercase tracking-widest">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                </svg>
+                                Manage
+                            </a>
+
+                            {{-- TOMBOL INVOICE --}}
+                            <a href="{{ route('staff.transactions.show', $t->id) }}" target="_blank" 
+                            class="bg-[#F9F9F9] text-[#BABABA] px-4 py-2 rounded-xl text-[9px] font-black hover:text-[#202020] border border-[#BABABA]/20 transition-all flex items-center gap-2 uppercase tracking-widest">
+                                Invoice
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="7" class="p-10 text-center italic text-gray-400">No transactions found.</td></tr>
+                <tr><td colspan="6" class="py-20 text-center text-[10px] font-black text-[#BABABA] tracking-[0.3em]">NO TRANSACTIONS FOUND</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-    <div class="px-6 py-4 border-t border-[#BABABA] bg-gray-50">
-        {{ $transactions->appends(request()->query())->links() }}
+    <div class="px-8 py-6 bg-[#F9F9F9]/50 border-t border-[#BABABA]/10">
+        {{ $transactions->links() }}
     </div>
 </div>
 @endsection

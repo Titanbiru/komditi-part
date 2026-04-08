@@ -16,64 +16,54 @@ class ProductController extends Controller
         $query = $request->q;
 
         $products = Product::where('status', 'active')
-        ->whereHas('categories', function($q) use ($request) {
-            if($request->q) {
-                $q->where('name', 'like', "%{$request->q}%");
-            }
-        })
-        ->orWhere('name', 'like', "%{$request->q}%")
-        ->latest()
-        ->paginate(12);
-
-        $products = Product::where('status', 'active')
+            // Kita tampilkan SEMUA yang active, berapapun stoknya
             ->when($query, function($q) use ($query) {
-                return $q->where('name', 'like', "%$query%");
+                return $q->where(function($sub) use ($query) {
+                    $sub->where('name', 'like', "%$query%")
+                        ->orWhereHas('categories', function($cat) use ($query) {
+                            $cat->where('name', 'like', "%$query%");
+                        });
+                });
             })
+            ->with(['images', 'categories'])
             ->latest()
             ->paginate(12);
-
-        
 
         return view('public.products.index', compact('products', 'categories'));
     }
 
-    // Menampilkan produk berdasarkan Kategori (Fix Error Route tadi)
     public function category($slug)
     {
         $categories = Category::all();
-        
-        // 1. Cari kategorinya dulu berdasarkan slug
         $currentCategory = Category::where('slug', $slug)->firstOrFail();
         
-        // 2. Ambil produk yang nyambung ke kategori ini lewat tabel pivot
         $products = Product::with('images')
+            ->where('status', 'active') // Stok 0 tetap muncul di kategori
             ->whereHas('categories', function($q) use ($currentCategory) {
                 $q->where('categories.id', $currentCategory->id);
             })
-            ->where('status', 'active')
             ->latest()
             ->paginate(12);
 
         $breadcrumbs = [
-                [
-                    'name' => 'Products', 
-                    'url' => route('public.products') // Link ke Katalog
-                ],
-                [
-                    'name' => $currentCategory->name, // Tetap tampilin nama RAM/Oli dll
-                    'url' => route('public.products') // TAPI link-nya dipaksa ke Katalog Utama
-                ],
-            ];
+            ['name' => 'Products', 'url' => route('public.products')],
+            ['name' => $currentCategory->name, 'url' => route('public.products')],
+        ];
+
         return view('public.products.index', compact('products', 'categories', 'currentCategory', 'breadcrumbs'));
     }
 
     public function show($slug)
     {
         $product = Product::where('slug', $slug)
-            ->where('status', 'active')
-            ->with(['categories', 'images']) // Eager load biar gak berat
+            ->with(['images', 'category'])
+            // Tambahkan ini: Hitung total quantity dari relasi orderItems
+            ->withCount(['orderItems as sold_count' => function($query) {
+                $query->whereHas('order', function($q) {
+                    $q->where('payment_status', 'paid'); // Hanya hitung yang sudah lunas
+                });
+            }])
             ->firstOrFail();
-
         // Susun array breadcrumbs
 
         $breadcrumbs = [

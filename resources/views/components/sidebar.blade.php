@@ -1,12 +1,19 @@
-<aside class="w-64 bg-[#CD2828] text-white h-screen fixed top-12 left-0 flex flex-col shadow-lg overflow-y-auto">
-    <!-- Header Sidebar -->
-    <div class="p-6 border-b border-[#832A2A] mt-4">
-        <p class="text-sm opacity-80 mt-1">
-            {{ ucfirst(auth()->user()->role) }} Panel
-        </p>
+<aside id="mainSidebar" class="w-64 bg-[#CD2828] text-white h-screen fixed top-0 lg:top-16 left-0 flex flex-col shadow-lg overflow-y-auto z-50 
+    transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0">
+    
+    {{-- Header Sidebar (Hanya Muncul di Mobile untuk tombol Close) --}}
+    <div class="p-6 border-b border-[#832A2A] flex justify-between items-center lg:pt-8">
+        <div>
+            <p class="text-sm font-bold mt-1">
+                {{ ucfirst(auth()->user()->role) }} Panel
+            </p>
+        </div>
+        {{-- Tombol Close X (Hanya muncul di HP) --}}
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-[#832A2A] rounded-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
     </div>
 
-    <!-- Navigasi Menu -->
     <nav class="px-4 py-6 space-y-1.5">
         <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('staff.dashboard') }}" 
         class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#832A2A] transition-colors 
@@ -68,15 +75,22 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.5 20q-2.275 0-3.887-1.575T1 14.575q0-1.95 1.175-3.475T5.25 9.15q.625-2.3 2.5-3.725T12 4q2.925 0 4.963 2.038T19 11q1.725.2 2.863 1.488T23 15.5q0 1.875-1.312 3.188T18.5 20H13q-.825 0-1.412-.587T11 18v-5.15L9.4 14.4L8 13l4-4l4 4l-1.4 1.4l-1.6-1.55V18h5.5q1.05 0 1.775-.725T21 15.5t-.725-1.775T18.5 13H17v-2q0-2.075-1.463-3.538T12 6T8.463 7.463T7 11h-.5q-1.45 0-2.475 1.025T3 14.5t1.025 2.475T6.5 18H9v2zm5.5-7"/></svg>
                 Backup & Restore
             </a>
+
+            <a href="{{ route('admin.settings.index') }}" 
+                class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#832A2A] transition-colors {{ request()->routeIs('admin.settings.*') ? 'bg-[#832A2A]' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+                General Settings
+            </a
         @endif
     </nav>
 
-    <!-- Logout (sama untuk semua) -->
-    <div class="p-4 border-t border-[#832A2A]">
+    <div class="p-4 border-t border-[#832A2A] bg-[#CD2828] sticky bottom-0">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#832A2A] hover:bg-[#CD2828] rounded-lg transition-colors text-white font-medium">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            <button type="submit" class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#832A2A] hover:bg-white hover:text-[#CD2828] rounded-xl transition-all text-white font-black text-[10px] uppercase tracking-widest">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 Log out
             </button>
         </form>

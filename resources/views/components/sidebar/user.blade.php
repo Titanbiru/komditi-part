@@ -1,7 +1,7 @@
 <div class="w-full">
     <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm space-y-6 sticky top-24">
         <div class="px-2">
-            <h2 class="text-sm font-bold text-gray-400 italic">Hello, <span class="text-[#CD2828]">{{ Auth::user()->name }}!</span></h2>
+            <h2 class="text-sm font-bold text-gray-400">Hello, <span class="text-[#CD2828]">{{ Auth::user()->name }}!</span></h2>
         </div>
 
         <div class="flex flex-col gap-2">

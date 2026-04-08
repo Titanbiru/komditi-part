@@ -46,6 +46,23 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password berhasil diubah!');
     }
+
+    public function destroy(Request $request)
+    {
+        $user = auth()->user();
+
+        // Logout user
+        auth()->logout();
+
+        // Hapus User dari Database
+        $user->delete();
+
+        // Hancurkan session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Akun Anda berhasil dihapus. Sampai jumpa lagi!');
+    }
 }
 
 

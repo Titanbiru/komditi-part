@@ -15,7 +15,7 @@
                     
                     @if($loop->last || is_null($link['url']))
                         {{-- Jika terakhir ATAU URL-nya null: Tampilkan Teks Diam --}}
-                        <span class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-800 italic md:ml-2 truncate max-w-[150px] md:max-w-none block">
+                        <span class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-800 md:ml-2 truncate max-w-[150px] md:max-w-none block">
                             {{ $link['name'] }}
                         </span>
                     @else

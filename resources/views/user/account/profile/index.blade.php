@@ -60,7 +60,7 @@
         <div class="w-full lg:w-3/4 space-y-8">
             {{-- Bagian Profil --}}
             <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
-                <h3 class="text-sm font-black text-gray-800 uppercase italic tracking-widest mb-8">Informasi Akun</h3>
+                <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest mb-8">Informasi Akun</h3>
                 
                 <form action="{{ route('user.account.profile.update') }}" method="POST" class="space-y-6">
                     @csrf
@@ -87,7 +87,7 @@
 
             {{-- Bagian Password --}}
             <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
-                <h3 class="text-sm font-black text-gray-800 uppercase italic tracking-widest mb-8">Ubah Password</h3>
+                <h3 class="text-sm font-black text-gray-800 uppercase tracking-widest mb-8">Ubah Password</h3>
                 
                 <form action="{{ route('user.account.profile.update.password') }}" method="POST" class="space-y-6">
                     @csrf
@@ -107,8 +107,42 @@
                     </div>
                 </form>
             </div>
+            
+            <div class="bg-red-50/50 border-2 border-dashed border-red-200 rounded-[2.5rem] p-8 mt-12">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-red-100 text-red-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 17c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-red-600 uppercase tracking-widest">Zona Bahaya</h3>
+                        <p class="text-[10px] font-bold text-red-400 uppercase mt-1 leading-relaxed">
+                            Setelah akun dihapus, semua data pesanan, alamat, dan koleksi Anda akan hilang permanen. Tindakan ini tidak dapat dibatalkan.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex justify-end">
+                    <form id="deleteAccountForm" action="{{ route('user.account.profile.delete') }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" onclick="confirmDelete()" class="bg-[#CD2828] text-white px-10 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-red-100">
+                            Hapus Akun Permanen
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
+
+<script>
+    function confirmDelete() {
+        if (confirm('APAKAH ANDA YAKIN? Semua data akan dihapus permanen dan Anda akan dikeluarkan dari sistem.')) {
+            document.getElementById('deleteAccountForm').submit();
+        }
+    }
+</script>
 @endsection

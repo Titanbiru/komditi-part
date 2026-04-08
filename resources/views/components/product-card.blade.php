@@ -20,7 +20,7 @@
 
         {{-- LABEL DISKON (Ambil dari $product->discount) --}}
         @if($product->discount > 0)
-            <div class="absolute top-3 left-3 z-20 bg-[#CD2828] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl shadow-lg shadow-red-200 uppercase italic tracking-tighter">
+            <div class="absolute top-3 left-3 z-20 bg-[#CD2828] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl shadow-lg shadow-red-200 uppercase tracking-tighter">
                 -{{ $product->discount }}%
             </div>
         @endif

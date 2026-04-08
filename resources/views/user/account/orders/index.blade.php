@@ -4,7 +4,7 @@
 <div class="container mx-auto px-4">
     <div class="bg-white border-2 border-gray-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm max-w-5xl mx-auto">
         <div class="flex items-center justify-between mb-10 border-b border-gray-50 pb-6">
-            <h1 class="text-xl font-black text-gray-800 italic uppercase tracking-tighter">Riwayat Pesanan</h1>
+            <h1 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Riwayat Pesanan</h1>
             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full">
                 Total: {{ $orders->total() }} Transaksi
             </span>
@@ -49,9 +49,9 @@
                             </p>
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase italic">
-                            <p class="text-gray-400 tracking-wider">Total Belanja: <span class="text-[#CD2828] font-black not-italic text-sm">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</span></p>
-                            <p class="text-gray-400 tracking-wider">Jumlah: <span class="text-gray-800 font-black not-italic">{{ $order->items->sum('quantity') }} Item</span></p>
+                        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase">
+                            <p class="text-gray-400 tracking-wider">Total Belanja: <span class="text-[#CD2828] font-black not text-sm">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</span></p>
+                            <p class="text-gray-400 tracking-wider">Jumlah: <span class="text-gray-800 font-black not">{{ $order->items->sum('quantity') }} Item</span></p>
                         </div>
                     </div>
 
@@ -100,7 +100,7 @@
                 </div>
             @empty
                 <div class="text-center py-20 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
-                    <p class="text-gray-400 italic font-bold uppercase text-xs tracking-widest">Belum ada riwayat belanja...</p>
+                    <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Belum ada riwayat belanja...</p>
                     <a href="{{ route('public.products') }}" class="inline-block mt-6 bg-black text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#CD2828] transition-all shadow-lg shadow-gray-200">
                         Mulai Belanja Sekarang
                     </a>
@@ -123,7 +123,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3" stroke-linecap="round"/></svg>
             </button>
 
-            <h3 class="text-lg font-black italic uppercase text-gray-800 mb-2">Konfirmasi Terima</h3>
+            <h3 class="text-lg font-black uppercase text-gray-800 mb-2">Konfirmasi Terima</h3>
             <p id="modalOrderNumber" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6"></p>
 
             <form id="receiptForm" method="POST" enctype="multipart/form-data">

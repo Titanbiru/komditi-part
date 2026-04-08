@@ -5,7 +5,7 @@
     {{-- Header --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-gray-50 pb-6 gap-4">
         <div class="flex items-center gap-4">
-            <h3 class="text-xl font-black text-gray-800 uppercase italic tracking-tighter">Detail Pesanan</h3>
+            <h3 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Detail Pesanan</h3>
         </div>
 
         {{-- LOGIKA: TOMBOL INVOICE HIDDEN JIKA BELUM SHIPPED/DELIVERED --}}
@@ -20,7 +20,7 @@
         @else
             {{-- Opsional: Kasih info kalau invoice belum tersedia --}}
             <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest italic italic">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                     Invoice tersedia setelah barang dikirim
                 </p>
             </div>
@@ -160,7 +160,7 @@
 
                     @if($totalHemat > 0)
                         <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg mt-2 border border-red-100">
-                            <span class="text-[10px] text-[#CD2828] italic font-black">Total Diskon</span>
+                            <span class="text-[10px] text-[#CD2828] font-black">Total Diskon</span>
                             <span class="text-[#CD2828] font-black">- Rp {{ number_format($totalHemat, 0, ',', '.') }}</span>
                         </div>
                     @endif

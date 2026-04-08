@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('user.account.profile');
     Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('user.account.profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('user.account.profile.update.password');
+    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('user.account.profile.delete');
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{product}', [CartController::class, 'addToCart'])->name('cart.add');

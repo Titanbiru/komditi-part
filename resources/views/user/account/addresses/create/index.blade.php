@@ -14,7 +14,7 @@
                 </svg>
             </a>
             <div>
-                <h3 class="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">Tambah Alamat Baru</h3>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-tighter leading-none">Tambah Alamat Baru</h3>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Pastikan data pengiriman sudah benar</p>
             </div>
         </div>
@@ -48,7 +48,7 @@
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Nama Penerima</label>
                     <input type="text" name="recipient_name" placeholder="Contoh: Budi Sudarsono" 
                         class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all @error('recipient_name') border-red-500 @enderror" value="{{ old('recipient_name') }}">
-                    @error('recipient_name') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                    @error('recipient_name') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Nomor Telepon --}}
@@ -56,7 +56,7 @@
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Nomor Telepon</label>
                     <input type="text" name="phone" placeholder="0857xxxxxxxx" 
                         class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all @error('phone') border-red-500 @enderror" value="{{ old('phone') }}">
-                    @error('phone') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                    @error('phone') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Alamat Lengkap</label>
                 <textarea name="address" rows="3" placeholder="Nama Jalan, No. Rumah, Komplek, dll." 
                     class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all resize-none @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
-                @error('address') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                @error('address') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
             </div>
 
             {{-- Wilayah --}}
@@ -74,21 +74,21 @@
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Provinsi</label>
                     <input type="text" name="province" placeholder="Jawa Barat" 
                         class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all @error('province') border-red-500 @enderror" value="{{ old('province') }}">
-                    @error('province') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                    @error('province') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Kota / Kabupaten</label>
                     <input type="text" name="city" placeholder="Bandung" 
                         class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all @error('city') border-red-500 @enderror" value="{{ old('city') }}">
-                    @error('city') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                    @error('city') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Kode Pos</label>
                     <input type="text" name="postal_code" placeholder="40xxx" 
                         class="w-full bg-gray-50/50 border-2 border-gray-100 rounded-[1.5rem] px-6 py-4 text-sm font-bold focus:outline-none focus:border-cyan-400 focus:bg-white transition-all @error('postal_code') border-red-500 @enderror" value="{{ old('postal_code') }}">
-                    @error('postal_code') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4 italic">{{ $message }}</p> @enderror
+                    @error('postal_code') <p class="text-[9px] text-red-500 font-bold uppercase mt-1 ml-4">{{ $message }}</p> @enderror
                 </div>
             </div>
 

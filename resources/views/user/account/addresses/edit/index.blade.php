@@ -14,7 +14,7 @@
                 </svg>
             </a>
             <div>
-                <h3 class="text-xl font-black text-gray-900 uppercase italic tracking-tighter leading-none">Edit Alamat</h3>
+                <h3 class="text-xl font-black text-gray-900 uppercase tracking-tighter leading-none">Edit Alamat</h3>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Perbarui data pengiriman kamu</p>
             </div>
         </div>
